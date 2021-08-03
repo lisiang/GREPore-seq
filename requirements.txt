@@ -1,0 +1,6 @@
+porechop
+samtools=1.10
+seqkit
+minimap2
+pigz
+xlrd==1.2.0
