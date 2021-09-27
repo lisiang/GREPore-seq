@@ -83,7 +83,10 @@ def seq_rev_com(read):
 def rev_com(fastq):
     start = time.time()
     total_count = 1
-    output = f"{fastq.replace('.fastq.gz', '-FR.fastq.gz')}"
+    if fastq.endswith('.fastq'):
+        output = f"{fastq.replace('.fastq', '-FR.fastq.gz')}"
+    elif fastq.endswith('.gz'):
+        output = f"{fastq.replace('.fastq.gz', '-FR.fastq.gz')}"
     with gzip.open(output, 'wb')as f:
         for read in read_fastq(fastq):
             total_count += 1
@@ -104,10 +107,21 @@ def consolidate_np_data(np_data_name):
 
     elif 'chop' not in np_data_name.lower():
         logger.info('Chopping adapter...')
-        choped_np_data = f"{np_data_name.replace('.fastq.gz', '-chop.fastq.gz')}"
+        if np_data_name.lower().endswith('.gz'):
+            choped_np_data = f"{np_data_name.replace('.fastq.gz', '-chop.fastq.gz')}"
+        elif np_data_name.lower().endswith('.fastq'):
+            choped_np_data = f"{np_data_name.replace('.fastq', '-chop.fastq.gz')}"
         chop_cmd = f'porechop --adapter_threshold 85 --extra_end_trim 0 -i {np_data_name} -o "{choped_np_data}"'
         with open(temp, 'w') as t:
             subprocess.call(chop_cmd, shell=True, stdout=t)
+
+        if choped_np_data not in os.listdir(os.getcwd()):
+            temps = [file for file in os.listdir(os.getcwd()) if 'TEMP_' in file]
+            chop_temp = [chop_temp for chop_temp in temps if chop_temp.endswith('.fastq')]
+            if chop_temp:
+                os.rename(chop_temp[0], choped_np_data.strip('.gz'))
+                choped_np_data = choped_np_data.strip('.gz')
+
         if '-fr' not in np_data_name.lower():
             logger.info('Merging forward and reverse...')
             choped_fr = rev_com(choped_np_data)

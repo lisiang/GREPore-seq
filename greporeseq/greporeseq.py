@@ -14,6 +14,7 @@ import preprocess as pre
 import demultiplex as dem
 import visualization as vis
 import stats as sta
+from cigar import TargetRatio
 
 logger = log.createCustomLogger('root')
 
@@ -143,7 +144,29 @@ class GREPoreSeq:
         except Exception as e:
             logger.error(e)
         else:
-            logger.info('calculation done')
+            logger.info('Calculation done')
+
+    def stat_cigar(self, *sorted_bam, target, length, outname):
+        """stat cigar string info"""
+        self.stat_abspath = self.set_dir(os.getcwd(), 'statistical-results')
+        output = os.path.join(self.stat_abspath, outname)
+        t = TargetRatio()
+        t.write_ratio(*sorted_bam, target=target, length=length, output=output)
+
+    def large_deletion(self, *bam):
+        """stat CIGAR-D 100 analyse large deletion ratio"""
+        sorted_bam = []
+        if bam:
+            sorted_bam = bam
+        else:
+            sorted_bam = self.sorted_bam_list
+        logger.info('Calculating large deletion')
+        try:
+            self.stat_cigar(*sorted_bam, target='D', length=100, outname='Large-deletion-ratio.txt')
+        except Exception as e:
+            logger.error(e)
+        else:
+            logger.info('Calculation done')
 
 
 def parse_args():
@@ -155,6 +178,10 @@ def parse_args():
     all_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
     all_parser.add_argument('-N', '--Nanopore', help="Specify the Nanopore sequencing data's name",
                             required=True)
+    all_parser.add_argument('-l', '--large', help="Calculate the Large deletion ratio of demultiplexed files",
+                            action='store_true')
+    all_parser.add_argument('-c', '--coverage', help="Use samtools to calculate coverage",
+                            action='store_true')
 
     preprocess_parser = subparsers.add_parser('preprocess', help='Perform preprocessing steps')
     preprocess_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
@@ -167,23 +194,37 @@ def parse_args():
     isolate_parser.add_argument('-rg', '--right_grep', help='Specify the Grepseq right file', required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex isolated FASTQ files')
-    demultiplex_parser.add_argument('-p', '--products', help='Specify the isolated FASTQ files', required=True)
-    demultiplex_parser.add_argument('-b', '--BC_primer_seq', help='Specify the BC-primer-seq file', required=True)
+    demultiplex_parser.add_argument('-p', '--products', help='Specify the isolated FASTQ files', required=True,
+                                    nargs='+')
+    demultiplex_parser.add_argument('-b', '--BC_primer_seq', help='Specify the BC-primer-seq file', required=True,
+                                    nargs='+')
 
     visualize_parser = subparsers.add_parser('visualize', help='Minimap2 align FASTQ files, '
                                                                'Samtools generate the sorted.bam and bai files '
                                                                'that IGV needed')
-    visualize_parser.add_argument('-a', '--fasta', help='Specify the fasta file', required=True)
-    visualize_parser.add_argument('-i', '--input', help='Specify the demultiplexed file', required=True)
+    visualize_parser.add_argument('-a', '--fasta', help='Specify the fasta file', required=True, nargs='+')
+    visualize_parser.add_argument('-i', '--input', help='Specify the demultiplexed file', required=True, nargs='+')
 
     stats_parser = subparsers.add_parser('stats', help='Stats preprocessed and demultiplexed FASTQ files')
 
     coverage_parser = subparsers.add_parser('coverage', help='Use samtools to calculate coverage')
 
+    large_del_parser = subparsers.add_parser('large', help='Calculate the Large deletion ratio of demultiplexed files')
+    large_del_parser.add_argument('-b', '--bam',
+                                  help='The bam format file that needs to calculate the large deletion ratio',
+                                  nargs='+', required=True)
+
     return parser.parse_args()
 
 
 def main():
+
+    def if_list(var):
+        if isinstance(var, list):
+            return var
+        else:
+            return [var]
+
     args = parse_args()
     if args.command == 'all':
         g = GREPoreSeq()
@@ -195,7 +236,11 @@ def main():
         g.demultiplex()
         g.visualization()
         g.stats_all_fq()
-        g.conculate_coverage()
+        if args.large:
+            g.large_deletion()
+        if args.coverage:
+            g.conculate_coverage()
+
 
     elif args.command == 'preprocess':
         """
@@ -206,6 +251,8 @@ def main():
         g.consolidate_np(args.Nanopore)
         g.make_bc_primer_seq()
         g.make_grepseq()
+        if args.large:
+            g.large_deletion()
 
     elif args.command == 'isolate':
         g = GREPoreSeq()
@@ -216,14 +263,14 @@ def main():
 
     elif args.command == 'demultiplex':
         g = GREPoreSeq()
-        g.pcr_products = [args.products]
-        g.bcps_files = [args.BC_primer_seq]
+        g.pcr_products = if_list(args.bam)
+        g.bcps_files = if_list(args.BC_primer_seq)
         g.demultiplex()
 
     elif args.command == 'visualize':
         g = GREPoreSeq()
-        g.amp_fa_list = [args.fasta]
-        g.demulted_products = [args.input]
+        g.amp_fa_list = if_list(args.fasta)
+        g.demulted_products = if_list(args.input)
         g.visualization()
 
     elif args.command == 'stats':
@@ -233,6 +280,11 @@ def main():
     elif args.command == 'coverage':
         g = GREPoreSeq()
         g.conculate_coverage()
+
+    elif args.command == 'large':
+        g = GREPoreSeq()
+        bams = if_list(args.bam)
+        g.large_deletion(*bams)
 
 
 if __name__ == '__main__':
