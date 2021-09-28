@@ -4,16 +4,16 @@
 
 * [Features](#Features)
 * [Dependencies](#Dependencies)
-* [Getting Set Up](#Getting Set Up)
+* [Getting_Set_Up](#Getting_Set_Up)
   
-  * [Install Miniconda2](#Install Miniconda2)
-  * [Install Dependencies](#Install Dependencies)
-* [Running the Full Analysis Pipeline](#Running the Full Analysis Pipeline)
+  * [Install_Miniconda2](#Install_Miniconda2)
+  * [Install_Dependencies](#Install_Dependencies)
+* [Running_the_Full_Analysis_Pipeline](#Running_the_Full_Analysis_Pipeline)
   
   * [Quickstart](#Quickstart)
-  * [Writing A Manifest Excel](#Writing A Manifest Excel)
-  * [A Full Manifest File Example](#A Full Manifest File Example)
-  * [Pipeline Output](#Pipeline Output)
+  * [Writing_A_Manifest_Excel](#Writing_A_Manifest_Excel)
+  * [A_Full_Manifest_File_Example](#A_Full_Manifest_File_Example)
+  * [Pipeline_Output](#Pipeline_Output)
   
   
 
@@ -43,9 +43,9 @@ After all the above steps have been completed, a series of file that IGV can vie
 * pigz
 * xlrd==1.2.0
 
-## Getting Set Up
+## Getting_Set_Up
 
-### Install Miniconda2
+### Install_Miniconda2
 
 We recommend you use Anaconda to install all dependencies:
 
@@ -61,7 +61,7 @@ Install conda, take miniconda2 as an example:
    `source ~/.bashrc`
    `conda --help`
 
-### Install Dependencies
+### Install_Dependencies
 
 Use conda install all dependencies:
 
@@ -75,7 +75,7 @@ Use conda install all dependencies:
 3. Install greporeseq dependencies by entering the greporeseq directory and running
    `conda install --file requirements.txt -y`
 
-## Running the Full Analysis Pipeline
+## Running_the_Full_Analysis_Pipeline
 
 ### Quickstart
 
@@ -91,7 +91,7 @@ If you wish to run an example on our abridged test data, You can do it by the fo
 
 `python ../greporeseq/greporeseq.py all -N N12.fastq.gz -e Nanopore-Seq-AmpBr-Info-total-N12.xlsx `
 
-### Writing A Manifest Excel
+### Writing_A_Manifest_Excel
 
 | Site name | Amplicon-Fwd-without-Barcode | Amp length | ID   | Barcode length | BC-Primer-seq  name | Barcode-Primer-F |
 | --------- | ---------------------------- | ---------- | ---- | -------------- | ------------------- | ---------------- |
@@ -105,7 +105,7 @@ If you wish to run an example on our abridged test data, You can do it by the fo
 * **BC-Primer-seq name**: The name of BC-Primer-seq file, it equals "ID-Site name".
 * **Barcode-Primer-F**: Barcode and forward primer sequence.
 
-### **A Full Manifest File Example**
+### **A_Full_Manifest_File_Example**
 
 Below is an example of a full manifest file.
 
@@ -127,7 +127,7 @@ Below is an example of a full manifest file.
 | BCL11A | gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacactccagggaggcagctgctgcccagtgctgtggacagcaaagcttcagtgcaggaaattaagattccccctgcctccccctcccccatcctcatcagcttggccatggcagggctgggggatcagaggtgaacaggaagcagaaggacccctgggggagacagggcctccagtgggaccagagctgagtggcctcaggcagtggcggaagctgattaaaggaaggtacggggagtggaggggaagtggacaaaagacaggacagccatcttagacaacaatgcaagggggagaaactgaagaaaacagaacagagaccactactggcaataaacagagagaaagtgaagccccatgggtgaggcacacctacattacttaagaaacctgagcacattcttacgcctagggcaataaatacatccttgagctacacaggctaagcaagagtgagagagggtgatgctgacaggccacatgggagagtgggaagacgtgggctgggagctgggagtttggcttctcatctgtgcatggcctctaaactgggcagtgaccatggcctggtcacctccccactctggacctgggttgcccctctgtaaacaaggaggttgtaataaattatctccaataccctaatgtcttataaatcttatgcaatttttgccaagatgggagtatggggagagaagagtggaaacggcccagagctcagtgagatgagatatcaaaggggacgaaaagtgttcattccatctccctaatctccaattggcaaagccagacttggggcaatacagactggttctgtgatgacaaataactcctagctcattcctaatgatttatcaccaaatgttctttcttcagctggaatttaaaatatggactcatccgtaaaataggaataataatagtatatgcttcatagggtttgtatgaaaataaaatgagtgcgtatttgtaaagttcctagagcagagtaagtgctccgagcttgtgaactaaaatgctgcctcctggtatttattagttacacctcagcagaaacaaagttatcaggccctttccccaattcctagtttgggtcagaagaaaagggaaaagggagaggaaaaaggaaaagaatatgacgtcagggggaggcaagtcagttgggaacacagatcctaacacagtagctggtacctgataggtgcctatatgtgatggatgggtggacagcccgacagatgaaaaatggacaattatgaggaggggagagtgcagacaggggaagcttcacctcctttacaattttgggagtccacacggcatggcatacaaattatttcattcccattgagaaataaaatccaattctccatcaccaagagagccttccgaaagaggcccccctgggcaaacggccaccgatggagaggtctgccagtcctcttctaccccacccacgcccccaccctaatcagaggccaaacccttcctggagcctGTGATAAAAGCAACTGTTAGcttgcactagactagcttcaaagttgtattgaccctggtgtgttatgtctaagagtagatgccatatctcttttctggcctatgttattacctgtatggactttgcactggaatcagctatctgctcttacttatgcacacctggggcatagagccagccctgtatcgcttttcagccatctcactacagataactcccaagtcctgtctagctgccttccttatcacaggaatagcacccaaggtccatcagtacctcagagtagaaccccctataaactagtctggtttgcccatggggcacagtcaggctgttttccagggtggggtgcagacattctctgcctgttgtgatgcttacatataacgtcataacagacacacgtatgtgttgtgatccctgtggtttgagagtttggagcttccctaaaagtcaaaatattctcaatgggccctcaatcagcacatacacacaaaaggtacctggaaaactgtaattcttttcctgctcaaagacaggcaattcaataccccttcccccaaccaaaaacccttgccaccatgggagcctggggcagagaaggcacagtgaagtcaaactgtaattccaggctctaaatggtgctgtcatttttctgagagtctctaaattacaagggtgttttcactattcttagctattttttaaaacacctaagaaacatactgcagctctggaaaagagaacaaacaaaccaaagagaagggatccagaggtcaccctcatatgtgaaaagtcaattgataatgaaggctttaggataaccggaggggagatgattgaaagcaatgcacctgtgcaggaaatggattacggaaacagggaattgttcatgaaatcccagaaaaccagaaccgggaaagttctggaagtcggaaaaacaaatcatgacttaagcaatggaagtccaatacacgtttacagaatgccttgtcccacgaggcaacacaggctaccacagatgggggacagggtgggagtggaccatcccagtggtgttactgaggggcaaagggatagccctatgaggcaagtgtccagggcagaactggagctttgtgaaaccatttcccaggcagagacagagcactaggctggtgctgccagtctgacaataagtctgccattgtcctctggtcagctctggacacacagcaaaagtgagttcagagtagcctgaagcaggaaagagggaagagaggaggataacacctatcttccactttgctgcaggttcaaggcaaggatttgagacagttaccccttctggaagagcctggtgagtacatctctcctgccttgtacaaccctctctcctcaccgactttctctcccagcagccagcaggggcctgggccatttatggaatgcaagccctgaccacacagacttacttacatgccaggacagccaccaggtagcctttcccactctaggttccactgtgagtgctctctctctctctctctctcactatgctcccaagaggagtcttacatcaaccccttcctcaaatctccctcactggatgtcacagtcataggcctgaaaagcagcatgcaaactgaatttttgtaaagcaggacccatttccccatggacagtcataagagatgagtgaacacaatgtagcacttaatttctgtcttcacgattacttcacgataaatctggattccaaagggactataagctctcacatggaaggaagcaagatctctactcctcccccagtgttgagtggacagggagtacaccgcagacacctgttggccaaccaattctaattccctttagctagcatcccctaagctagagctagagctagagctatttccttgcagccttccttttctctagcaaagtccttccatgcagtagctaatgacctgtaaacacttaatgagctagagaaacattccattgaaaggaataccactgtgcatccttttgtaaagaggggggaaaatcttttgtaaaacgaagcatcgcctttaactgctctgtttgatcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct | 3863       | N12_WW_BCL11A_BCr2BC6_2020_04_07_CB63_142_RNPsyn37_ds34bp_4d | 8              | N12_WW_BCL11A_BCr2BC6_2020_04_07_CB63_142_RNPsyn37_ds34bp_4d-4kBCL11A37 | AAACTTTGgtgtggtgttcggagtccta |
 >>>>>>> 0d132a5c9b849695c0f0fb3469bcfebcd7f5854e
 
-### Pipeline Output
+### Pipeline_Output
 
 When running the full pipeline, the results of each step are outputted in a separate folder for each step. The output folders and their respective contents are as follows:
 
