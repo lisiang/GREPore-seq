@@ -14,6 +14,7 @@ import preprocess as pre
 import demultiplex as dem
 import visualization as vis
 import stats as sta
+import condition_grep as con
 from cigar import TargetRatio
 
 logger = log.createCustomLogger('root')
@@ -146,27 +147,37 @@ class GREPoreSeq:
         else:
             logger.info('Calculation done')
 
-    def stat_cigar(self, *sorted_bam, target, length, outname):
+    def stat_cigar(self, *sorted_bam, target, length, outname, Opposing=False):
         """stat cigar string info"""
         self.stat_abspath = self.set_dir(os.getcwd(), 'statistical-results')
         output = os.path.join(self.stat_abspath, outname)
         t = TargetRatio()
-        t.write_ratio(*sorted_bam, target=target, length=length, output=output)
+        t.write_ratio(*sorted_bam, target=target, length=length, output=output, Opposing=Opposing)
 
     def large_deletion(self, *bam):
         """stat CIGAR-D 100 analyse large deletion ratio"""
-        sorted_bam = []
         if bam:
             sorted_bam = bam
         else:
             sorted_bam = self.sorted_bam_list
         logger.info('Calculating large deletion')
-        try:
-            self.stat_cigar(*sorted_bam, target='D', length=100, outname='Large-deletion-ratio.txt')
-        except Exception as e:
-            logger.error(e)
-        else:
-            logger.info('Calculation done')
+        self.stat_cigar(*sorted_bam, target='D', length=100, outname='Large-deletion-ratio.txt')
+
+    def hdr_analyse(self, excel_name, demulti_list):
+        self.hdr_seq_name = pre.read_excel(excel_name, 7,dup_rm=False)
+        self.hdr_seq = pre.read_excel(excel_name, 8, upper=True, dup_rm=False)
+        self.hdr_path = self.set_dir(os.getcwd(), 'HDR')
+
+        logger.info('Aligning...')
+        hdr_fas = pre.make_fa(self.hdr_seq_name, self.hdr_seq, self.hdr_path)
+        fa_mmi_files = vis.make_mmi_file(hdr_fas, self.hdr_path)
+        self.hdr_sorted_bams = vis.visualizing(fa_mmi_files, demulti_list, self.hdr_path)
+
+        logger.info('Analyzing...')
+        self.stat_cigar(*self.hdr_sorted_bams, target='S', length=1000, outname='HDR-ratio', Opposing=True)
+
+
+
 
 
 def parse_args():
@@ -182,6 +193,7 @@ def parse_args():
                             action='store_true')
     all_parser.add_argument('-c', '--coverage', help="Use samtools to calculate coverage",
                             action='store_true')
+    all_parser.add_argument('-hdr', help='Calculate HDR ratio', action='store_true')
 
     preprocess_parser = subparsers.add_parser('preprocess', help='Perform preprocessing steps')
     preprocess_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
@@ -214,6 +226,11 @@ def parse_args():
                                   help='The bam format file that needs to calculate the large deletion ratio',
                                   nargs='+', required=True)
 
+    hdr_parser = subparsers.add_parser('hdr', help='HDR ratio Calculation ')
+    hdr_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
+    hdr_parser.add_argument('-i', '--input', help='Specify the demultiplexed file',
+                            required=True, nargs='+')
+
     return parser.parse_args()
 
 
@@ -240,6 +257,8 @@ def main():
             g.large_deletion()
         if args.coverage:
             g.conculate_coverage()
+        if args.hdr:
+            g.hdr_analyse(args.excel, g.demulted_products)
 
 
     elif args.command == 'preprocess':
@@ -286,6 +305,18 @@ def main():
         bams = if_list(args.bam)
         g.large_deletion(*bams)
 
+    elif args.command == 'hdr':
+        g = GREPoreSeq()
+        demultiplexeds = if_list(args.input)
+        g.hdr_analyse(args.excel, demultiplexeds)
+
 
 if __name__ == '__main__':
     main()
+
+# demultis = [f"./demultiplexed/{de}" for de in os.listdir('demultiplexed') if de.endswith('.fq.gz')]
+# # sorted_bams = [f"./visualization-Fwd/{bam}" for bam in os.listdir('visualization-Fwd') if bam.endswith('.bam')]
+# # print(demultis)
+# g = GREPoreSeq()
+# # g.hdr_sorted_bams = sorted_bams
+# g.hdr_analyse('Nanopore-Seq-AmpBr-Info-total-N62.xlsx', demultis)

@@ -71,7 +71,7 @@ class TargetRatio:
             name_cigar[name] = cigar_combine
         return name_cigar
 
-    def write_ratio(self, *bam_files, target, length, output):
+    def write_ratio(self, *bam_files, target, length, output, Opposing=False):
         """write result to txt file"""
         with open(f'{output}.txt', 'w') as deletion_object:
             deletion_object.write(
@@ -107,11 +107,9 @@ class TargetRatio:
                 line = f"{bam_file}\t" \
                        f"{self.filtered_num}\t" \
                        f"{len(self.name_cigar_dict)}\t" \
-                       f"{stat}\t" \
-                       f"{(stat / len(self.name_cigar_dict) * 100):.2f}%" \
-                       f"\n"
+                       f"{stat}\t"
+                if Opposing:
+                    line += f"{(1-(stat/len(self.name_cigar_dict)))*100:.2f}%\n"
+                else:
+                    line += f"{(stat / len(self.name_cigar_dict) * 100):.2f}%\n"
                 deletion_object.write(line)
-
-# d = TargetRatio()
-# bam = 'N62_WW2340_sg12_5kBC1_2020_10_19_14T5d_QZJ_RNPsyn12_ds29bp50pmol_1e4AAV6P1614_4d-5KEEF2-5KEEF2.sorted.bam'
-# d.write_ratio(bam, target='D', length=100, output='N62-deletion-ratio')

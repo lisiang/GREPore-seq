@@ -158,7 +158,14 @@ def make_fa(site_names, site_seqs, out_path):
     return fa_out_list
 
 
-def make_bcps(bc_primer_names, bc_primer_seqs, bc_primer_lenths, output_path):
+def make_bcps(bc_primer_names,
+              bc_primer_seqs,
+              bc_primer_lenths,
+              output_path,
+              number=5,
+              walk=9,
+              step=1,
+              rm_fa=True):
     """generate the BC-primer-seq file"""
     logger.info('Generating BC-primer-seq file...')
     BC_primer_seqs = []
@@ -167,7 +174,7 @@ def make_bcps(bc_primer_names, bc_primer_seqs, bc_primer_lenths, output_path):
     while i < len(bc_primer_names):
         with open(temp, 'w') as t:
             fa_txt_temp = os.path.join(output_path, f'{bc_primer_names[i]}.temp')
-            makeBCP_cmd = f'seqkit subseq -r 1:{int(float(bc_primer_lenths[i]) + 5)} "{fa_list[i]}" | seqkit sliding -W 9 -s 1 | seqkit fx2tab >> "{fa_txt_temp}"'
+            makeBCP_cmd = f'seqkit subseq -r 1:{int(float(bc_primer_lenths[i]) + number)} "{fa_list[i]}" | seqkit sliding -W {walk} -s {step} | seqkit fx2tab >> "{fa_txt_temp}"'
             subprocess.call(makeBCP_cmd, shell=True, stdout=t)
 
             BCPout = os.path.join(output_path, f'{bc_primer_names[i]}.txt')
@@ -178,7 +185,8 @@ def make_bcps(bc_primer_names, bc_primer_seqs, bc_primer_lenths, output_path):
                     f.write(line[1] + '\n')
                 f.close()
             os.remove(fa_txt_temp)
-            os.remove(fa_list[i])
+            if rm_fa:
+                os.remove(fa_list[i])
             os.remove(fa_list[i] + '.seqkit.fai')
             BC_primer_seqs.append(BCPout)
         i += 1
