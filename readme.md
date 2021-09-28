@@ -4,10 +4,12 @@
 
 * [Features](#Features)
 * [Dependencies](#Dependencies)
-* [Getting Set Up](#Getting set Up)
+* [Getting Set Up](#Getting Set Up)
+  
   * [Install Miniconda2](#Install Miniconda2)
   * [Install Dependencies](#Install Dependencies)
 * [Running the Full Analysis Pipeline](#Running the Full Analysis Pipeline)
+  
   * [Quickstart](#Quickstart)
   * [Writing A Manifest Excel](#Writing A Manifest Excel)
   * [A Full Manifest File Example](#A Full Manifest File Example)
