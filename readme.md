@@ -4,16 +4,16 @@
 
 * [Features](#Features)
 * [Dependencies](#Dependencies)
-* [Getting Set Up](#Getting Set Up)
+* [Getting Set Up](#Getting-Set-Up)
   
-  * [Install Miniconda2](# Install Miniconda2)
-  * [Install Dependencies](# Install Dependencies)
-* [Running the Full Analysis Pipeline](# Running the Full Analysis Pipeline)
+  * [Install Miniconda2](#Install-Miniconda2)
+  * [Install Dependencies](#Install-Dependencies)
+* [Running the Full Analysis Pipeline](#Running-the-Full-Analysis-Pipeline)
   
-  * [Quickstart](# Quickstart)
-  * [Writing A Manifest Excel](#Writing A Manifest file)
-  * [A Full Manifest File Example](# A Full Manifest File Example)
-  * [Pipeline Output](#Pipeline Output)
+  * [Quickstart](#Quickstart)
+  * [Writing A Manifest Excel](#Writing-A-Manifest-file)
+  * [A Full Manifest File Example](#A-Full-Manifest-File-Example)
+  * [Pipeline Output](#Pipeline-Output)
   
   
 
@@ -31,7 +31,7 @@ The individual pipeline steps are:
 
 After all the above steps have been completed, Results can be viewed using IGV.
 
-[![image-20220111164001369](C:\Users\60569\AppData\Roaming\Typora\typora-user-images\image-20220111164001369.png)]
+[![igv_panel.png](https://github.com/lisiang/GREPore-seq/blob/master/igv_panel.png)]
 
 ## Dependencies
 
