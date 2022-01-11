@@ -31,7 +31,7 @@ The individual pipeline steps are:
 
 After all the above steps have been completed, Results can be viewed using IGV.
 
-[![igv_panel.png](https://github.com/lisiang/GREPore-seq/blob/master/igv_panel.png)]
+![igv_panel.png](https://github.com/lisiang/GREPore-seq/blob/master/igv_panel.png)
 
 ## Dependencies
 
