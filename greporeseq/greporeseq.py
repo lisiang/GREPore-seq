@@ -8,14 +8,14 @@
 
 import os
 import argparse
+import re
+import textwrap
+import time
 
 import log
-import preprocess as pre
-import demultiplex as dem
 import visualization as vis
-import stats as sta
-import condition_grep as con
-from cigar import TargetRatio
+import read_input as ri
+from read_fastq import read_fastq
 
 logger = log.createCustomLogger('root')
 
@@ -32,152 +32,236 @@ class GREPoreSeq:
     def __init__(self):
         pass
 
-    def set_dir(self, wd, dir_name):
+    def set_dir(self, dir_name):
         """Setting directory"""
-        dir_abspath = os.path.join(wd, dir_name)
-        if dir_name not in os.listdir(wd):
-            os.mkdir(dir_abspath)
-        return dir_abspath
+        if dir_name not in os.listdir():
+            os.mkdir(dir_name)
+            return dir_name
+        else:
+            return dir_name
 
-    def excel_info(self, excel_name):
+    def seq_rev_com(self, read):
+        """reverse complement"""
+        trantab = str.maketrans('ACGTacgtRYMKrymkVBHDvbhd', 'TGCAtgcaYRKMyrkmBVDHbvdh')
+        rev_com_seq = read[1].translate(trantab)[::-1]
+        rev_com_id = f'{read[0].strip().split()[0]}_R'
+        linel = [rev_com_id, rev_com_seq, read[2], read[3][::-1]]
+        return linel
+
+    def rev_com(self, seq):
+        if seq:
+            trantab = str.maketrans('ACGTacgtRYMKrymkVBHDvbhd', 'TGCAtgcaYRKMyrkmBVDHbvdh')
+            return seq.translate(trantab)[::-1]
+        else:
+            return
+
+    def input_info(self, ref_yaml=None, demulti_yaml=None):
         """Extraction of excel information"""
-        logger.info("Loading {0}...".format(excel_name))
-        self.site_names = pre.read_excel(excel_name, 0)
-        self.site_seqs = pre.read_excel(excel_name, 1, upper=True)
-        self.bc_lenths = list(filter(None, pre.read_excel(excel_name, 4, dup_rm=False)))
-        self.bc_primer_names = pre.read_excel(excel_name, 5, dup_rm=False)
-        self.bc_primer_seqs = pre.read_excel(excel_name, 6, dup_rm=False, upper=True)
+        if ref_yaml:
+            self.ref_info = ri.r_input(ref_yaml)
+        if demulti_yaml:
+            self.demul_info = ri.r_input(demulti_yaml)
 
-    def consolidate_np(self, NP_data_name):
-        """Forward and reverse consolidation of NP data"""
-        chopped_fr_fastq_gz = pre.consolidate_np_data(NP_data_name)
-        self.chopped_fr_name = chopped_fr_fastq_gz
+    def mk_reference(self):
+        """Check and create the output folder"""
+        logger.info('Making FASTA file')
+        self.ref_dir = self.set_dir('Reference')
 
-    def make_bc_primer_seq(self):
-        """according to excel info make BC-primer-seq file"""
-        self.pre_abspath = self.set_dir(os.getcwd(), 'preprocess')
-        try:
-            self.bcps_files = pre.make_bcps(self.bc_primer_names, self.bc_primer_seqs, self.bc_lenths, self.pre_abspath)
-        except Exception as e:
-            logger.error(e)
+        self.id_references = {}
+        for ref_id, reference_info in self.ref_info.items():
+            reference_id = self.reform_id(ref_id)
+            seq = self.reform_seq(reference_info['sequence'])
+            line = f'>{reference_id}\n'
+            line += textwrap.fill(seq, 60)
+            fa_out = os.path.join(self.ref_dir, f'{reference_id}.fasta')
+            self.id_references[reference_id] = fa_out
+            with open(fa_out, 'w') as f:
+                f.write(line)
+
+    def mk_grepseq(self, ref_seq, walk, step):
+        if ref_seq:
+            s, length = 0, len(ref_seq)
+            greps = [ref_seq[s + step * i:walk + step * i] for i in range(round(length / step))]
+            grepws = [seq for seq in greps if len(seq) == walk]
+            return grepws
         else:
-            logger.info('BC-primer-seq file has been generated')
+            return
 
-    def make_grepseq(self):
-        """according to Amplicon fa file generate Grepseq file"""
-        self.pre_abspath = self.set_dir(os.getcwd(), 'preprocess')
+    def osearch(slef, seqs_used, seq_searched, match):
+        m = 0
+        if seqs_used:
+            for seq in seqs_used:
+                if re.search(seq, seq_searched):
+                    m += 1
+                    if m >= match:
+                        return m
+        elif not seqs_used:
+            return True
 
-        try:
-            self.amp_fa_list = pre.make_fa(self.site_names, self.site_seqs, self.pre_abspath)
-        except Exception as e:
-            logger.error(e)
+    def reform_seq(self, seq):
+        if seq:
+            return seq.replace(' ', '').replace('\n', '').replace('\t', '').upper()
         else:
-            logger.info('AMP fa file has been generated')
+            return
 
-        self.grep_seq_files = pre.make_grepseq(self.amp_fa_list)
-        logger.info('Grepseq file has been generated')
-        self.grep_seqL = sorted([name for name in self.grep_seq_files if 'GrepL' in name],
-                                key=self.grep_seq_files.index)
-        self.grep_seqR = sorted([name for name in self.grep_seq_files if 'GrepR' in name],
-                                key=self.grep_seq_files.index)
-
-    def isolate(self):
-        """demultiplex the NP-FR data"""
-        self.dem_abspath = self.set_dir(os.getcwd(), 'demultiplexed')
-        try:
-            self.pcr_products = dem.isolate_PCR_products(self.chopped_fr_name,
-                                                         self.grep_seqL,
-                                                         self.grep_seqR,
-                                                         self.dem_abspath)
-        except Exception as e:
-            logger.error(e)
-
-    def demultiplex(self):
-        """demultiplex the isolated datat"""
-        self.dem_abspath = self.set_dir(os.getcwd(), 'demultiplexed')
-        try:
-            demulted_info = dem.demultiplex_PCR_products(self.pcr_products,
-                                                         self.bcps_files,
-                                                         self.dem_abspath)
-            self.demulted_products = demulted_info[0]
-            self.site_demulted_dict = demulted_info[1]
-        except Exception as e:
-            logger.error(e)
-        if self.demulted_products:
-            logger.info('Demultiplex has been done')
+    def reform_num(self, num):
+        if num:
+            return int(num)
         else:
-            logger.error("Please ensure {}'s name contains  {}'s info ".format(self.bcps_files,
-                                                                               self.pcr_products))
+            return
+
+    def reform_id(self, name_id):
+        if name_id:
+            return name_id.replace(' ', '_').replace('.', '_').replace('\t', '_')
+        else:
+            return
+
+    def disassemble(self):
+        logger.info('Disassembling input info')
+        self.fastq_ids, self.left_150s, self.right_150s = [], [], []
+        self.id_ref, self.BCprimer_Fs, self.BClen_Fs, self.id_BCprimer_Rs, self.id_uniseq, self.id_BClen_R = {}, {}, {}, {}, {}, {}
+        for demuti_id, demuti_info in self.demul_info.items():
+            demuti_id = self.reform_id(demuti_id)
+            self.fastq_ids.append(demuti_id)
+            self.left_150s.append(self.reform_seq(demuti_info['left_150bp']))
+            self.right_150s.append(self.reform_seq(demuti_info['right_150bp']))
+            self.BCprimer_Fs[f'{demuti_id}'] = self.reform_seq(demuti_info['BCprimer_F'])
+            self.BClen_Fs[f'{demuti_id}'] = self.reform_num(demuti_info['BClen_F'])
+            self.id_ref[f'{demuti_id}'] = self.reform_id(demuti_info['reference_id'])
+            self.id_BCprimer_Rs[f'{demuti_id}'] = self.rev_com(self.reform_seq(demuti_info['BCprimer_R']))
+            self.id_BClen_R[f'{demuti_id}'] = self.reform_num(demuti_info['BClen_R'])
+            self.id_uniseq[f'{demuti_id}'] = self.reform_seq(demuti_info['unique_sequence'])
+
+    def prepare_grepseq(self):
+        logger.info('Preparing Grepseqs')
+        self.id_reads_dic, self.id_grepseq_dic = {}, {}
+        for f_id, l_150, r_150 in zip(self.fastq_ids, self.left_150s, self.right_150s):
+            BCprimer_F = self.BCprimer_Fs[f_id]
+            BCprimerR = self.id_BCprimer_Rs[f_id]
+            BClen_F = self.BClen_Fs[f_id]
+            BClen_R = self.id_BClen_R[f_id]
+            uniseq = self.id_uniseq[f_id]
+
+            if not BClen_F:
+                BCrange_F = -1
+            else:
+                BCrange_F = BClen_F + 8
+
+            if not BClen_R:
+                BCrange_R = -1
+            else:
+                BCrange_R = BClen_R + 8
+
+            self.id_reads_dic[f_id] = []
+            self.id_grepseq_dic[f'{f_id}left150'] = self.mk_grepseq(ref_seq=l_150[:151], walk=15, step=20)
+            self.id_grepseq_dic[f'{f_id}right150'] = self.mk_grepseq(ref_seq=r_150[-150:], walk=15, step=20)
+
+            if BCprimer_F:
+                self.id_grepseq_dic[f'{f_id}BCprimer_F'] = self.mk_grepseq(ref_seq=BCprimer_F[:BCrange_F], walk=9,
+                                                                           step=1)
+            else:
+                self.id_grepseq_dic[f'{f_id}BCprimer_F'] = None
+            if BCprimerR:
+                self.id_grepseq_dic[f'{f_id}BCprimer_R'] = self.mk_grepseq(ref_seq=BCprimerR[:BCrange_R], walk=9,
+                                                                           step=1)
+            else:
+                self.id_grepseq_dic[f'{f_id}BCprimer_R'] = None
+            if uniseq:
+                self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=15, step=200)
+            else:
+                self.id_grepseq_dic[f'{f_id}uniseq'] = None
+
+    def is_complete(self, f_id, read, read_rev_com, match):
+        gerpseqs_left150 = self.id_grepseq_dic[f'{f_id}left150']
+        gerpseqs_right150 = self.id_grepseq_dic[f'{f_id}right150']
+        grepseqs_BCprimerF = self.id_grepseq_dic[f'{f_id}BCprimer_F']
+        grepseqs_BCprimerR = self.id_grepseq_dic[f'{f_id}BCprimer_R']
+        grepseqs_uniseq = self.id_grepseq_dic[f'{f_id}uniseq']
+
+        match_nf_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read[1][:151], match=match)
+        match_nr_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read_rev_com[1][:151], match=match)
+        if match_nf_left150:
+            match_nf_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read[1][-150:], match=match)
+            if match_nf_right150:
+                match_nf_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read[1][:21],
+                                                  match=match)
+                if match_nf_BCprimerF:
+                    match_nf_BCprimerR = self.osearch(seqs_used=grepseqs_BCprimerR, seq_searched=read[1][-20:],
+                                                      match=match)
+                    if match_nf_BCprimerR:
+                        match_nf_uniseq = self.osearch(seqs_used=grepseqs_uniseq, seq_searched=read[1][151:-150],
+                                                       match=match)
+                        if match_nf_uniseq:
+                            return "NF"
+        elif match_nr_left150:
+            match_nr_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read_rev_com[1][-150:],
+                                             match=match)
+            if match_nr_right150:
+                match_nr_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read_rev_com[1][:21],
+                                                  match=match)
+                if match_nr_BCprimerF:
+                    match_nr_BCprimerR = self.osearch(seqs_used=grepseqs_BCprimerR,
+                                                      seq_searched=read_rev_com[1][-20:],
+                                                      match=match)
+                    if match_nr_BCprimerR:
+                        match_nr_uniseq = self.osearch(seqs_used=grepseqs_uniseq,
+                                                       seq_searched=read_rev_com[1][151:-150],
+                                                       match=match)
+                        if match_nr_uniseq:
+                            return "NR"
+
+    def demultiplex(self, fastq_file, match=2):
+        logger.info(f'Demultiplexing {fastq_file}')
+        nt = 0
+        start = time.time()
+        for read in read_fastq(fastq_file):
+            # Obtain the reverse complementary sequence
+            revcom_line = self.seq_rev_com(read)
+            for f_id in self.fastq_ids:
+                result = self.is_complete(f_id, read, revcom_line, match)
+
+                if result == "NF":
+                    line = f"{read[0]}\n{read[1]}\n{read[2]}\n{read[3]}\n"
+                    self.id_reads_dic[f_id].append(line)
+
+                elif result == "NR":
+                    line_rc = f"{revcom_line[0]}\n{revcom_line[1]}\n{revcom_line[2]}\n{revcom_line[3]}\n"
+                    self.id_reads_dic[f_id].append(line_rc)
+
+            nt += 1
+            if nt % 100000 == 0:
+                logger.info("Processed %d reads in %.1f minutes" % (nt, (time.time() - start) / 60))
+
+    def write_fastq(self):
+        self.demulti_outpath = self.set_dir('Demultiplexed')
+        self.demultis, stats = [], []
+        stats = ['file\treads\n']
+        for id, reads in self.id_reads_dic.items():
+            out = os.path.join(self.demulti_outpath, id + '.fastq')
+            self.demultis.append(out)
+            with open(out, 'w') as f_out:
+                if reads:
+                    lines = reads[:-2]
+                    lines.append(reads[-1].strip())
+                    f_out.writelines(lines)
+                else:
+                    continue
+            logger.info(f"{len(reads)} reads are written to the {out}")
+            stats.append(f"{out}\t{len(reads)}\n")
+        stats_out = os.path.join(self.demulti_outpath, 'Demultiplex_stats.txt')
+        with open(stats_out, 'w') as f_stat:
+            f_stat.writelines(stats)
 
     def visualization(self):
-        self.visua_abspath = self.set_dir(os.getcwd(), 'visualization')
-        try:
-            self.mmi_file_list = vis.make_mmi_file(self.amp_fa_list,
-                                                   self.visua_abspath)
-            self.sorted_bam_list = vis.visualizing(self.mmi_file_list,
-                                                   self.demulted_products,
-                                                   self.visua_abspath)
+        self.visua_abspath = self.set_dir('Visualization')
+        sorted_bams = []
+        for demulti_id, demulti in zip(self.fastq_ids, self.demultis):
+            ref_id = self.id_ref[demulti_id]
+            reference = self.id_references[ref_id]
 
-        except Exception as e:
-            logger.error(e)
-        if self.sorted_bam_list:
-            pass
-        else:
-            logger.error("Please ensure fq's name contain fa file's info ")
-
-    def stats_all_fq(self):
-        """stat all fastq file's read info"""
-        self.dem_abspath = self.set_dir(os.getcwd(), 'demultiplexed')
-        self.stat_abspath = self.set_dir(os.getcwd(), 'statistical-results')
-        try:
-            sta.stats(self.dem_abspath, self.stat_abspath)
-        except Exception as e:
-            logger.error(e)
-        else:
-            logger.info('Stats done')
-
-    def conculate_coverage(self):
-        """calculate the files coverage"""
-        self.visua_abspath = self.set_dir(os.getcwd(), 'visualization')
-        self.stat_abspath = self.set_dir(os.getcwd(), 'statistical-results')
-        try:
-            sta.coverage(self.visua_abspath, self.stat_abspath)
-        except Exception as e:
-            logger.error(e)
-        else:
-            logger.info('Calculation done')
-
-    def stat_cigar(self, *sorted_bam, target, length, outname, Opposing=False):
-        """stat cigar string info"""
-        self.stat_abspath = self.set_dir(os.getcwd(), 'statistical-results')
-        output = os.path.join(self.stat_abspath, outname)
-        t = TargetRatio()
-        t.write_ratio(*sorted_bam, target=target, length=length, output=output, Opposing=Opposing)
-
-    def large_deletion(self, *bam):
-        """stat CIGAR-D 100 analyse large deletion ratio"""
-        if bam:
-            sorted_bam = bam
-        else:
-            sorted_bam = self.sorted_bam_list
-        logger.info('Calculating large deletion')
-        self.stat_cigar(*sorted_bam, target='D', length=100, outname='Large-deletion-ratio.txt')
-
-    def hdr_analyse(self, excel_name, demulti_list):
-        self.hdr_seq_name = pre.read_excel(excel_name, 7,dup_rm=False)
-        self.hdr_seq = pre.read_excel(excel_name, 8, upper=True, dup_rm=False)
-        self.hdr_path = self.set_dir(os.getcwd(), 'HDR')
-
-        logger.info('Aligning...')
-        hdr_fas = pre.make_fa(self.hdr_seq_name, self.hdr_seq, self.hdr_path)
-        fa_mmi_files = vis.make_mmi_file(hdr_fas, self.hdr_path)
-        self.hdr_sorted_bams = vis.visualizing(fa_mmi_files, demulti_list, self.hdr_path)
-
-        logger.info('Analyzing...')
-        self.stat_cigar(*self.hdr_sorted_bams, target='S', length=1000, outname='HDR-ratio', Opposing=True)
-
-
-
+            sorted_bam = vis.visualizing(reference, demulti, self.visua_abspath)
+            sorted_bams.append(sorted_bam)
+        logger.info("Visualization done")
 
 
 def parse_args():
@@ -186,56 +270,29 @@ def parse_args():
                                        help='Use this to run individual steps of the pipeline',
                                        dest='command')
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
-    all_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
-    all_parser.add_argument('-N', '--Nanopore', help="Specify the Nanopore sequencing data's name",
-                            required=True)
-    all_parser.add_argument('-l', '--large', help="Calculate the Large deletion ratio of demultiplexed files",
-                            action='store_true')
-    all_parser.add_argument('-c', '--coverage', help="Use samtools to calculate coverage",
-                            action='store_true')
-    all_parser.add_argument('-hdr', help='Calculate HDR ratio', action='store_true')
+    all_parser.add_argument('-d', '--demultiplexinfo', help="Specify the DemultiplexInfo file", required=True)
+    all_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
+    all_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
-    preprocess_parser = subparsers.add_parser('preprocess', help='Perform preprocessing steps')
-    preprocess_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
-    preprocess_parser.add_argument('-N', '--Nanopore', help="Specify the Nanopore sequencing data's name",
-                                   required=True)
+    preprocess_parser = subparsers.add_parser('mkreference',
+                                              help='Create FASTA files based on the information in the "RefenrenceInfo"')
+    preprocess_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
-    isolate_parser = subparsers.add_parser('isolate', help='Using Grepseq isolate PCR products')
-    isolate_parser.add_argument('-N', '--NanoporeData', help='Nanopore datat after preprocessing', required=True)
-    isolate_parser.add_argument('-lg', '--left_grep', help='Specify the Grepseq left file', required=True)
-    isolate_parser.add_argument('-rg', '--right_grep', help='Specify the Grepseq right file', required=True)
-
-    demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex isolated FASTQ files')
-    demultiplex_parser.add_argument('-p', '--products', help='Specify the isolated FASTQ files', required=True,
-                                    nargs='+')
-    demultiplex_parser.add_argument('-b', '--BC_primer_seq', help='Specify the BC-primer-seq file', required=True,
-                                    nargs='+')
+    demultiplex_parser = subparsers.add_parser('demultiplex',
+                                               help='Demultiplex FASTQ files based on the information in the "ReferenceInfo"')
+    demultiplex_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
+    demultiplex_parser.add_argument('-d', '--demultiplexinfo', help="Specify the DemultiplexInfo file", required=True)
 
     visualize_parser = subparsers.add_parser('visualize', help='Minimap2 align FASTQ files, '
                                                                'Samtools generate the sorted.bam and bai files '
                                                                'that IGV needed')
-    visualize_parser.add_argument('-a', '--fasta', help='Specify the fasta file', required=True, nargs='+')
-    visualize_parser.add_argument('-i', '--input', help='Specify the demultiplexed file', required=True, nargs='+')
-
-    stats_parser = subparsers.add_parser('stats', help='Stats preprocessed and demultiplexed FASTQ files')
-
-    coverage_parser = subparsers.add_parser('coverage', help='Use samtools to calculate coverage')
-
-    large_del_parser = subparsers.add_parser('large', help='Calculate the Large deletion ratio of demultiplexed files')
-    large_del_parser.add_argument('-b', '--bam',
-                                  help='The bam format file that needs to calculate the large deletion ratio',
-                                  nargs='+', required=True)
-
-    hdr_parser = subparsers.add_parser('hdr', help='HDR ratio Calculation ')
-    hdr_parser.add_argument('-e', '--excel', help='Specify the excel name', required=True)
-    hdr_parser.add_argument('-i', '--input', help='Specify the demultiplexed file',
-                            required=True, nargs='+')
+    visualize_parser.add_argument('-a', '--fasta', help='Specify the reference FASTA file', required=True)
+    visualize_parser.add_argument('-q', '--fastq', help='Specify demultiplexed FASTQ files', required=True, nargs='+')
 
     return parser.parse_args()
 
 
 def main():
-
     def if_list(var):
         if isinstance(var, list):
             return var
@@ -245,78 +302,39 @@ def main():
     args = parse_args()
     if args.command == 'all':
         g = GREPoreSeq()
-        g.excel_info(args.excel)
-        g.consolidate_np(args.Nanopore)
-        g.make_bc_primer_seq()
-        g.make_grepseq()
-        g.isolate()
-        g.demultiplex()
+        g.input_info(ref_yaml=args.referenceinfo, demulti_yaml=args.demultiplexinfo)
+        g.mk_reference()
+        g.disassemble()
+        g.prepare_grepseq()
+        g.demultiplex(fastq_file=args.nanopore, match=2)
+        g.write_fastq()
         g.visualization()
-        g.stats_all_fq()
-        if args.large:
-            g.large_deletion()
-        if args.coverage:
-            g.conculate_coverage()
-        if args.hdr:
-            g.hdr_analyse(args.excel, g.demulted_products)
 
 
-    elif args.command == 'preprocess':
+    elif args.command == 'mkreference':
         """
-        Run just preprocessing step given the excel_file and Nanopore_Data
+        Run just mkreference step given the RefInfo
         """
         g = GREPoreSeq()
-        g.excel_info(args.excel)
-        g.consolidate_np(args.Nanopore)
-        g.make_bc_primer_seq()
-        g.make_grepseq()
-        if args.large:
-            g.large_deletion()
+        g.input_info(ref_yaml=args.referenceinfo)
+        g.mk_reference()
 
-    elif args.command == 'isolate':
-        g = GREPoreSeq()
-        g.chopped_fr_name = args.NanoporeData
-        g.grep_seqL = [args.left_grep]
-        g.grep_seqR = [args.right_grep]
-        g.isolate()
 
     elif args.command == 'demultiplex':
         g = GREPoreSeq()
-        g.pcr_products = if_list(args.bam)
-        g.bcps_files = if_list(args.BC_primer_seq)
-        g.demultiplex()
+        g.input_info(demulti_yaml=args.demultiplexinfo)
+        g.disassemble()
+        g.prepare_grepseq()
+        g.demultiplex(fastq_file=args.nanopore, match=2)
+        g.write_fastq()
 
     elif args.command == 'visualize':
         g = GREPoreSeq()
-        g.amp_fa_list = if_list(args.fasta)
-        g.demulted_products = if_list(args.input)
-        g.visualization()
-
-    elif args.command == 'stats':
-        g = GREPoreSeq()
-        g.stats_all_fq()
-
-    elif args.command == 'coverage':
-        g = GREPoreSeq()
-        g.conculate_coverage()
-
-    elif args.command == 'large':
-        g = GREPoreSeq()
-        bams = if_list(args.bam)
-        g.large_deletion(*bams)
-
-    elif args.command == 'hdr':
-        g = GREPoreSeq()
-        demultiplexeds = if_list(args.input)
-        g.hdr_analyse(args.excel, demultiplexeds)
+        outpath = g.set_dir('Visualization')
+        fastqs = if_list(args.fastq)
+        for demuti in fastqs:
+            vis.visualizing(args.fasta, demuti, outpath)
 
 
 if __name__ == '__main__':
     main()
-
-# demultis = [f"./demultiplexed/{de}" for de in os.listdir('demultiplexed') if de.endswith('.fq.gz')]
-# # sorted_bams = [f"./visualization-Fwd/{bam}" for bam in os.listdir('visualization-Fwd') if bam.endswith('.bam')]
-# # print(demultis)
-# g = GREPoreSeq()
-# # g.hdr_sorted_bams = sorted_bams
-# g.hdr_analyse('Nanopore-Seq-AmpBr-Info-total-N62.xlsx', demultis)

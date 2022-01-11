@@ -1,0 +1,210 @@
+N26_WW1590_sg25_4kBC26_2020_06_19_853T4d_wt_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: atgataactaggTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1591_sg25_4kBC27_2020_06_19_853T4d_RNPsyn25_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: catctcatctcgTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1592_sg25_4kBC28_2020_06_19_853T4d_RNPsyn25_1e4GHAAV6P1664_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: cctgaagacgttTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1593_sg25_4kBC29_2020_06_19_853T4d_RNPsyn25_3433ssODN_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: gcagaagtctatTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1594_sg25_4kBC30_2020_06_19_853T4d_RNPsyn25_3433ssODN_1e4GHAAV6P1664_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: gttcagtaagacTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1595_sg25_4kBC31_2020_06_19_853T4d_RNPsyn25_ds34bp_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: taccagtcaatcTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1065_sg25_4kBC32_2020_05_14_849iPSC_wt_M3814_3d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: tgctcatctgctTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1066_sg25_4kBC33_2020_05_14_849iPSC_RNPsyn25_3d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: tgttggaacttcTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1067_sg25_4kBC34_2020_05_14_849iPSC_RNPsyn25_M3814_3d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: aggagacatcagTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1657_sg25_4kBC35_2020_06_28_14T4d_RNPsyn25_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: aacgactatgtcTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1658_sg25_4kBC36_2020_06_28_14T4d_RNPsyn25_1e4GHAAV6P1664_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: gtagctgattccTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1659_sg25_4kBC37_2020_06_28_14T4d_RNPsyn25_M3814_4d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: taagacactcgtTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1710_sg25_4kBC38_2020_07_03_K562_Cas9_wt_3d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: gatacatatcgaTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1712_sg25_4kBC39_2020_07_03_K562_Cas9_RNPsyn25_3d: 
+  reference_id: 4kAAVS1
+  left_150bp: tgcaaacaggaagtgaacggggaagggagggggcttctcatctgggtgcgggaaccccacatggtacctgttagacacggcaaaacccccgtcaccacccacaggtggcgcttccagtgctcagactagggaagaggttccagcccctcc
+  right_150bp: aaggagacaaagtccaggaccggctggaggggctcaacatcggaagaggggaagtcgagggagggatggtaaggaggactgcatgggtcagcacaggctgccaaagccagggccagttaaagcgactccaatgcggaagagagtaggtcg
+  BCprimer_F: ttctggtgactgTGCAAACAGGAAGTGAACGG
+  BClen_F: 12
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1710_sg37_4kBC16_2020_07_03_K562_Cas9_wt_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: gggtaacgGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 8
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1713_sg37_4kBC17_2020_07_03_K562_Cas9_RNPsyn37_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: tatacgacGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 8
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1672_sg37_4kBC18_2020_07_01_CB53_wt_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: aacggactGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 8
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1675_sg37_4kBC21_2020_07_01_CB53_RNPsyn37_1e4GHAAV6P1753_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: actcgagaGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 8
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1677_sg37_4kBC23_2020_07_01_CB53_RNPsyn37_RS1_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: gacaacgcttGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 10
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1678_sg37_4kBC24_2020_07_01_CB53_RNPsyn37_NU7441_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: gggtaacgtaGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 10
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
+N26_WW1679_sg37_4kBC25_2020_07_01_CB53_RNPsyn37_Ola_3d: 
+  reference_id: 4kBCL11A37
+  left_150bp: gtgtggtgttcggagtcctaagagcccccactagctcagaaatggacttagttgacctcccccattagcagcatggagagtcaaggagatgacttctaccttgccaaaggccttgggaagaaagacagcatcaaggtctcacacaacact
+  right_150bp: tcaagtcagatttttcagaatatgaatagctagtattcaagcatatatgaactgtctttaagttaatcaatccctagaaactagccctcaggttagcaggccaaggatatatgagagtgctttgaagtctagacttaaactgccgctcct
+  BCprimer_F: tatacgacatGTGTGGTGTTCGGAGTCCTA
+  BClen_F: 10
+#optional
+  BCprimer_R: 
+  BClen_R: 
+  unique_sequence: 
