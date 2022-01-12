@@ -27,7 +27,7 @@ The individual pipeline steps are:
 
 1. **Make_reference**: Based on the information entered in the RefInfo.yaml file, produce the corresponding reference sequence FASTA files.
 2. **Demultiplex**: A multi-sample Oxford Nanopore sequencing run is demultiplexed into sample-specific read FASTQ files based on the information in DemultiplexInfo.yaml.
-3. **Visualization**: The demultiplexed read files are aligned to reference using Minimap2-ax map-ont algorithm with default parameters ([Li. H, 2018](https://doi.org/10.1093/bioinformatics/bty191)), then sorted and indexed by using samtools([Petr Danecek, 2021](https://doi.org/10.1093/gigascience/giab008)).
+3. **Visualization**: The demultiplexed read files are aligned to reference using Minimap2-ax map-ont algorithm with default parameters ([Li. H, 2018](https://doi.org/10.1093/bioinformatics/bty191)), then sorted and indexed by using samtools([H Li, 2009](https://doi.org/10.1093/bioinformatics/btp352)).
 
 After all the above steps have been completed, Results can be viewed using IGV.
 
