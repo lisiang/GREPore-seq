@@ -173,7 +173,7 @@ N26_WW1591_sg25_4kBC27_2020_06_19_853T4d_RNPsyn25_4d:
 
 ### Pipeline Output
 
-When running the full pipeline, the results of each step are outputted in a separate folder for each step. The output folders and their respective contents are as follows:1
+When running the full pipeline, the results of each step are outputted in a separate folder for each step. The output folders and their respective contents are as follows:
 
 * **Reference**: Contains the FASTA file corresponding to the reference sequence input in RefInfo.
 * **demultiplexed**: Contains the demultiplexed FASTQ files, and a brief statistics  file with the number of files/reads.
