@@ -274,12 +274,12 @@ def parse_args():
     all_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
     all_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
-    preprocess_parser = subparsers.add_parser('mkreference',
+    preprocess_parser = subparsers.add_parser('reference',
                                               help='Create FASTA files based on the information in the "RefenrenceInfo"')
     preprocess_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex',
-                                               help='Demultiplex FASTQ files based on the information in the "ReferenceInfo"')
+                                               help='Demultiplex FASTQ files based on the information in the "DemultiplexInfo"')
     demultiplex_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
     demultiplex_parser.add_argument('-d', '--demultiplexinfo', help="Specify the DemultiplexInfo file", required=True)
 
