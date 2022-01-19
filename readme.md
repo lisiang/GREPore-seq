@@ -11,7 +11,7 @@
 * [Running the Full Analysis Pipeline](#Running-the-Full-Analysis-Pipeline)
   
   * [Quickstart](#Quickstart)
-  * [Writing A Manifest Excel](#Writing-A-Manifest-file)
+  * [Writing A Manifest file](#Writing-A-Manifest-file)
   * [A Full Manifest File Example](#A-Full-Manifest-File-Example)
   * [Pipeline Output](#Pipeline-Output)
   
@@ -94,7 +94,7 @@ When running all steps of greporeseq, it is necessary to describe each sample th
 
 the fields contained in the `DemultiplexInfo.yaml` are:
 
-* **reference_id**: Used to fill in the reference id. Note: the reference_id must be from the RefInfo.
+* **reference_id**: Used to fill in the reference id. Note: reference_id must exist in RefInfo.yaml.
 * **left_150bp**: Used to fill in the 150bp sequence at the left end of the sequenced sample.
 * **right_150bp**: Used to fill in the 150bp sequence at the right end of the sequencing sample.
 * **BCprimer_F**: Used to fill in the sequence of the forward Barcode + forward primer. Required if the sequencing sample is a PCR product. Note: If there is no Barcode, only the primer sequence is required.
