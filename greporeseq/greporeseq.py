@@ -118,13 +118,13 @@ class GREPoreSeq:
 
     def disassemble(self):
         logger.info('Disassembling input info')
-        self.fastq_ids, self.left_150s, self.right_150s = [], [], []
-        self.id_ref, self.BCprimer_Fs, self.BClen_Fs, self.id_BCprimer_Rs, self.id_uniseq, self.id_BClen_R = {}, {}, {}, {}, {}, {}
+        self.fastq_ids = []
+        self.id_ref, self.left_150s, self.right_150s, self.BCprimer_Fs, self.BClen_Fs, self.id_BCprimer_Rs, self.id_uniseq, self.id_BClen_R = {}, {}, {}, {}, {}, {}, {}, {}
         for demuti_id, demuti_info in self.demul_info.items():
             demuti_id = self.reform_id(demuti_id)
             self.fastq_ids.append(demuti_id)
-            self.left_150s.append(self.reform_seq(demuti_info['left_150bp']))
-            self.right_150s.append(self.reform_seq(demuti_info['right_150bp']))
+            self.left_150s[f'{demuti_id}'] = self.reform_seq(demuti_info['left_150bp'])
+            self.right_150s[f'{demuti_id}'] = self.reform_seq(demuti_info['right_150bp'])
             self.BCprimer_Fs[f'{demuti_id}'] = self.reform_seq(demuti_info['BCprimer_F'])
             self.BClen_Fs[f'{demuti_id}'] = self.reform_num(demuti_info['BClen_F'])
             self.id_ref[f'{demuti_id}'] = self.reform_id(demuti_info['reference_id'])
@@ -135,7 +135,9 @@ class GREPoreSeq:
     def prepare_grepseq(self):
         logger.info('Preparing Grepseqs')
         self.id_reads_dic, self.id_grepseq_dic = {}, {}
-        for f_id, l_150, r_150 in zip(self.fastq_ids, self.left_150s, self.right_150s):
+        for f_id in self.fastq_ids:
+            l_150 = self.left_150s[f_id]
+            r_150 = self.right_150s[f_id]
             BCprimer_F = self.BCprimer_Fs[f_id]
             BCprimerR = self.id_BCprimer_Rs[f_id]
             BClen_F = self.BClen_Fs[f_id]
@@ -153,9 +155,14 @@ class GREPoreSeq:
                 BCrange_R = BClen_R + 8
 
             self.id_reads_dic[f_id] = []
-            self.id_grepseq_dic[f'{f_id}left150'] = self.mk_grepseq(ref_seq=l_150[:151], walk=15, step=20)
-            self.id_grepseq_dic[f'{f_id}right150'] = self.mk_grepseq(ref_seq=r_150[-150:], walk=15, step=20)
-
+            if l_150:
+                self.id_grepseq_dic[f'{f_id}left150'] = self.mk_grepseq(ref_seq=l_150[:151], walk=15, step=20)
+            else:
+                self.id_grepseq_dic[f'{f_id}left150'] = None
+            if r_150:
+                self.id_grepseq_dic[f'{f_id}right150'] = self.mk_grepseq(ref_seq=r_150[-150:], walk=15, step=20)
+            else:
+                self.id_grepseq_dic[f'{f_id}right150'] = None
             if BCprimer_F:
                 self.id_grepseq_dic[f'{f_id}BCprimer_F'] = self.mk_grepseq(ref_seq=BCprimer_F[:BCrange_F], walk=9,
                                                                            step=1)
@@ -167,7 +174,8 @@ class GREPoreSeq:
             else:
                 self.id_grepseq_dic[f'{f_id}BCprimer_R'] = None
             if uniseq:
-                self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=15, step=200)
+                steps = len(uniseq) // 10
+                self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=15, step=steps)
             else:
                 self.id_grepseq_dic[f'{f_id}uniseq'] = None
 
@@ -210,7 +218,7 @@ class GREPoreSeq:
                         if match_nr_uniseq:
                             return "NR"
 
-    def demultiplex(self, fastq_file, match=2):
+    def demultiplex(self, fastq_file, match=1):
         logger.info(f'Demultiplexing {fastq_file}')
         nt = 0
         start = time.time()
@@ -274,12 +282,12 @@ def parse_args():
     all_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
     all_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
-    preprocess_parser = subparsers.add_parser('reference',
+    preprocess_parser = subparsers.add_parser('mkreference',
                                               help='Create FASTA files based on the information in the "RefenrenceInfo"')
     preprocess_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex',
-                                               help='Demultiplex FASTQ files based on the information in the "DemultiplexInfo"')
+                                               help='Demultiplex FASTQ files based on the information in the "ReferenceInfo"')
     demultiplex_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
     demultiplex_parser.add_argument('-d', '--demultiplexinfo', help="Specify the DemultiplexInfo file", required=True)
 
@@ -306,7 +314,7 @@ def main():
         g.mk_reference()
         g.disassemble()
         g.prepare_grepseq()
-        g.demultiplex(fastq_file=args.nanopore, match=2)
+        g.demultiplex(fastq_file=args.nanopore, match=1)
         g.write_fastq()
         g.visualization()
 
