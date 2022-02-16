@@ -3,3 +3,4 @@ samtools=1.10
 minimap2
 pigz
 pyyaml
+seqkit

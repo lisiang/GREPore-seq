@@ -11,6 +11,9 @@ import argparse
 import re
 import textwrap
 import time
+import subprocess
+from tkinter.tix import Tree
+import random
 
 import log
 import visualization as vis
@@ -147,24 +150,24 @@ class GREPoreSeq:
             if not BClen_F:
                 BCrange_F = -1
             else:
-                BCrange_F = BClen_F + 8
+                BCrange_F = BClen_F * 2 - 8
 
             if not BClen_R:
                 BCrange_R = -1
             else:
-                BCrange_R = BClen_R + 8
+                BCrange_R = BClen_R * 2 - 8
 
             self.id_reads_dic[f_id] = []
             if l_150:
-                self.id_grepseq_dic[f'{f_id}left70'] = self.mk_grepseq(ref_seq=l_150[20:91], walk=15, step=20)
+                self.id_grepseq_dic[f'{f_id}left150'] = self.mk_grepseq(ref_seq=l_150[:151], walk=17, step=20)
             else:
-                self.id_grepseq_dic[f'{f_id}left70'] = None
+                self.id_grepseq_dic[f'{f_id}left150'] = None
             if r_150:
-                self.id_grepseq_dic[f'{f_id}right70'] = self.mk_grepseq(ref_seq=r_150[-90:-20], walk=15, step=20)
+                self.id_grepseq_dic[f'{f_id}right150'] = self.mk_grepseq(ref_seq=r_150[-150:], walk=17, step=20)
             else:
-                self.id_grepseq_dic[f'{f_id}right70'] = None
+                self.id_grepseq_dic[f'{f_id}right150'] = None
             if BCprimer_F:
-                self.id_grepseq_dic[f'{f_id}BCprimer_F'] = self.mk_grepseq(ref_seq=BCprimer_F[:BCrange_F], walk=9,
+                self.id_grepseq_dic[f'{f_id}BCprimer_F'] = self.mk_grepseq(ref_seq=BCprimer_F[:BCrange_F], walk=11,
                                                                            step=1)
             else:
                 self.id_grepseq_dic[f'{f_id}BCprimer_F'] = None
@@ -175,22 +178,22 @@ class GREPoreSeq:
                 self.id_grepseq_dic[f'{f_id}BCprimer_R'] = None
             if uniseq:
                 steps = len(uniseq) // 10
-                self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=15, step=steps)
+                self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=17, step=steps)
             else:
                 self.id_grepseq_dic[f'{f_id}uniseq'] = None
 
     def is_complete(self, f_id, read, read_rev_com, match):
-        gerpseqs_left70 = self.id_grepseq_dic[f'{f_id}left70']
-        gerpseqs_right70 = self.id_grepseq_dic[f'{f_id}right70']
+        gerpseqs_left150 = self.id_grepseq_dic[f'{f_id}left150']
+        gerpseqs_right150 = self.id_grepseq_dic[f'{f_id}right150']
         grepseqs_BCprimerF = self.id_grepseq_dic[f'{f_id}BCprimer_F']
         grepseqs_BCprimerR = self.id_grepseq_dic[f'{f_id}BCprimer_R']
         grepseqs_uniseq = self.id_grepseq_dic[f'{f_id}uniseq']
 
-        match_nf_left70 = self.osearch(seqs_used=gerpseqs_left70, seq_searched=read[1][:151], match=match)
-        match_nr_left70 = self.osearch(seqs_used=gerpseqs_left70, seq_searched=read_rev_com[1][:151], match=match)
-        if match_nf_left70:
-            match_nf_right70 = self.osearch(seqs_used=gerpseqs_right70, seq_searched=read[1][-150:], match=match)
-            if match_nf_right70:
+        match_nf_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read[1][:151], match=match)
+        match_nr_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read_rev_com[1][:151], match=match)
+        if match_nf_left150:
+            match_nf_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read[1][-150:], match=match)
+            if match_nf_right150:
                 match_nf_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read[1][:21],
                                                   match=match)
                 if match_nf_BCprimerF:
@@ -201,10 +204,10 @@ class GREPoreSeq:
                                                        match=match)
                         if match_nf_uniseq:
                             return "NF"
-        elif match_nr_left70:
-            match_nr_right70 = self.osearch(seqs_used=gerpseqs_right70, seq_searched=read_rev_com[1][-150:],
+        elif match_nr_left150:
+            match_nr_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read_rev_com[1][-150:],
                                              match=match)
-            if match_nr_right70:
+            if match_nr_right150:
                 match_nr_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read_rev_com[1][:21],
                                                   match=match)
                 if match_nr_BCprimerF:
@@ -243,19 +246,29 @@ class GREPoreSeq:
     def write_fastq(self):
         self.demulti_outpath = self.set_dir('Demultiplexed')
         self.demultis, stats = [], []
+        self.demulti_random200s = {}
         stats = ['file\treads\n']
         for id, reads in self.id_reads_dic.items():
             out = os.path.join(self.demulti_outpath, id + '.fastq')
+            out_random200 = os.path.join(self.demulti_outpath, id + '_random200.fastq')
             self.demultis.append(out)
+            self.demulti_random200s[out] = None
             with open(out, 'w') as f_out:
                 if reads:
                     lines = reads[:-2]
                     lines.append(reads[-1].strip())
                     f_out.writelines(lines)
+                    if len(lines) > 200:
+                        self.demulti_random200s[out] = out_random200
+                        random_lines = random.sample(lines, 200)
+                        with open(out_random200, 'w') as random_out:
+                            random_out.writelines(random_lines)
                 else:
                     continue
             logger.info(f"{len(reads)} reads are written to the {out}")
             stats.append(f"{out}\t{len(reads)}\n")
+            seqkit_watch_cmd = f'seqkit watch -Q --fields ReadLen {out} -O {out.strip(".fastq")}.pdf'
+            subprocess.call(seqkit_watch_cmd, shell=True)
         stats_out = os.path.join(self.demulti_outpath, 'Demultiplex_stats.txt')
         with open(stats_out, 'w') as f_stat:
             f_stat.writelines(stats)
@@ -266,8 +279,9 @@ class GREPoreSeq:
         for demulti_id, demulti in zip(self.fastq_ids, self.demultis):
             ref_id = self.id_ref[demulti_id]
             reference = self.id_references[ref_id]
+            demulti_random200 = self.demulti_random200s[demulti]
 
-            sorted_bam = vis.visualizing(reference, demulti, self.visua_abspath)
+            sorted_bam = vis.visualizing(reference, demulti, self.visua_abspath, demulti_random200)
             sorted_bams.append(sorted_bam)
         logger.info("Visualization done")
 
@@ -283,11 +297,11 @@ def parse_args():
     all_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
     preprocess_parser = subparsers.add_parser('mkreference',
-                                              help='Create FASTA files based on the information in the "RefenrenceInfo"')
+                                              help='Create FASTA files based on the information in the "ReferenceInfo"')
     preprocess_parser.add_argument('-r', '--referenceinfo', help="Specify the ReferenceInfo file", required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex',
-                                               help='Demultiplex FASTQ files based on the information in the "ReferenceInfo"')
+                                               help='Demultiplex FASTQ files based on the information in the "DemultiplexInfo"')
     demultiplex_parser.add_argument('-n', '--nanopore', help="Specify the Nanopore sequencing data file", required=True)
     demultiplex_parser.add_argument('-d', '--demultiplexinfo', help="Specify the DemultiplexInfo file", required=True)
 
