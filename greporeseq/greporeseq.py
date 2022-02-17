@@ -122,12 +122,12 @@ class GREPoreSeq:
     def disassemble(self):
         logger.info('Disassembling input info')
         self.fastq_ids = []
-        self.id_ref, self.left_150s, self.right_150s, self.BCprimer_Fs, self.BClen_Fs, self.id_BCprimer_Rs, self.id_uniseq, self.id_BClen_R = {}, {}, {}, {}, {}, {}, {}, {}
+        self.id_ref, self.left_seqs, self.right_seqs, self.BCprimer_Fs, self.BClen_Fs, self.id_BCprimer_Rs, self.id_uniseq, self.id_BClen_R = {}, {}, {}, {}, {}, {}, {}, {}
         for demuti_id, demuti_info in self.demul_info.items():
             demuti_id = self.reform_id(demuti_id)
             self.fastq_ids.append(demuti_id)
-            self.left_150s[f'{demuti_id}'] = self.reform_seq(demuti_info['left_150bp'])
-            self.right_150s[f'{demuti_id}'] = self.reform_seq(demuti_info['right_150bp'])
+            self.left_seqs[f'{demuti_id}'] = self.reform_seq(demuti_info['left_seqs'])
+            self.right_seqs[f'{demuti_id}'] = self.reform_seq(demuti_info['right_seqs'])
             self.BCprimer_Fs[f'{demuti_id}'] = self.reform_seq(demuti_info['BCprimer_F'])
             self.BClen_Fs[f'{demuti_id}'] = self.reform_num(demuti_info['BClen_F'])
             self.id_ref[f'{demuti_id}'] = self.reform_id(demuti_info['reference_id'])
@@ -139,8 +139,8 @@ class GREPoreSeq:
         logger.info('Preparing Grepseqs')
         self.id_reads_dic, self.id_grepseq_dic = {}, {}
         for f_id in self.fastq_ids:
-            l_150 = self.left_150s[f_id]
-            r_150 = self.right_150s[f_id]
+            self.l_seq = self.left_seqs[f_id]
+            self.r_seq = self.right_seqs[f_id]
             BCprimer_F = self.BCprimer_Fs[f_id]
             BCprimerR = self.id_BCprimer_Rs[f_id]
             BClen_F = self.BClen_Fs[f_id]
@@ -158,14 +158,14 @@ class GREPoreSeq:
                 BCrange_R = BClen_R * 2 - 8
 
             self.id_reads_dic[f_id] = []
-            if l_150:
-                self.id_grepseq_dic[f'{f_id}left150'] = self.mk_grepseq(ref_seq=l_150[:151], walk=17, step=20)
+            if self.l_seq:
+                self.id_grepseq_dic[f'{f_id}leftseq'] = self.mk_grepseq(ref_seq=self.l_seq, walk=17, step=20)
             else:
-                self.id_grepseq_dic[f'{f_id}left150'] = None
-            if r_150:
-                self.id_grepseq_dic[f'{f_id}right150'] = self.mk_grepseq(ref_seq=r_150[-150:], walk=17, step=20)
+                self.id_grepseq_dic[f'{f_id}leftseq'] = None
+            if self.r_seq:
+                self.id_grepseq_dic[f'{f_id}rightseq'] = self.mk_grepseq(ref_seq=self.r_seq, walk=17, step=20)
             else:
-                self.id_grepseq_dic[f'{f_id}right150'] = None
+                self.id_grepseq_dic[f'{f_id}rightseq'] = None
             if BCprimer_F:
                 self.id_grepseq_dic[f'{f_id}BCprimer_F'] = self.mk_grepseq(ref_seq=BCprimer_F[:BCrange_F], walk=11,
                                                                            step=1)
@@ -177,37 +177,46 @@ class GREPoreSeq:
             else:
                 self.id_grepseq_dic[f'{f_id}BCprimer_R'] = None
             if uniseq:
-                steps = len(uniseq) // 10
+                steps = len(uniseq) // 20
                 self.id_grepseq_dic[f'{f_id}uniseq'] = self.mk_grepseq(ref_seq=uniseq, walk=17, step=steps)
             else:
                 self.id_grepseq_dic[f'{f_id}uniseq'] = None
 
     def is_complete(self, f_id, read, read_rev_com, match):
-        gerpseqs_left150 = self.id_grepseq_dic[f'{f_id}left150']
-        gerpseqs_right150 = self.id_grepseq_dic[f'{f_id}right150']
+        gerpseqs_leftseq = self.id_grepseq_dic[f'{f_id}leftseq']
+        gerpseqs_rightseq = self.id_grepseq_dic[f'{f_id}rightseq']
         grepseqs_BCprimerF = self.id_grepseq_dic[f'{f_id}BCprimer_F']
         grepseqs_BCprimerR = self.id_grepseq_dic[f'{f_id}BCprimer_R']
         grepseqs_uniseq = self.id_grepseq_dic[f'{f_id}uniseq']
 
-        match_nf_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read[1][:151], match=match)
-        match_nr_left150 = self.osearch(seqs_used=gerpseqs_left150, seq_searched=read_rev_com[1][:151], match=match)
-        if match_nf_left150:
-            match_nf_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read[1][-150:], match=match)
-            if match_nf_right150:
+        left_range = 150
+        right_range = 150
+
+        if self.l_seq:
+            left_range = len(self.l_seq)
+        
+        if self.r_seq:
+            right_range = len(self.r_seq)
+
+        match_nf_leftseq = self.osearch(seqs_used=gerpseqs_leftseq, seq_searched=read[1][:left_range], match=match)
+        match_nr_leftseq = self.osearch(seqs_used=gerpseqs_leftseq, seq_searched=read_rev_com[1][:left_range], match=match)
+        if match_nf_leftseq:
+            match_nf_rightseq = self.osearch(seqs_used=gerpseqs_rightseq, seq_searched=read[1][-right_range:], match=match)
+            if match_nf_rightseq:
                 match_nf_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read[1][:21],
                                                   match=match)
                 if match_nf_BCprimerF:
                     match_nf_BCprimerR = self.osearch(seqs_used=grepseqs_BCprimerR, seq_searched=read[1][-20:],
                                                       match=match)
                     if match_nf_BCprimerR:
-                        match_nf_uniseq = self.osearch(seqs_used=grepseqs_uniseq, seq_searched=read[1][151:-150],
+                        match_nf_uniseq = self.osearch(seqs_used=grepseqs_uniseq, seq_searched=read[1][left_range:-right_range],
                                                        match=match)
                         if match_nf_uniseq:
                             return "NF"
-        elif match_nr_left150:
-            match_nr_right150 = self.osearch(seqs_used=gerpseqs_right150, seq_searched=read_rev_com[1][-150:],
+        elif match_nr_leftseq:
+            match_nr_rightseq = self.osearch(seqs_used=gerpseqs_rightseq, seq_searched=read_rev_com[1][-right_range:],
                                              match=match)
-            if match_nr_right150:
+            if match_nr_rightseq:
                 match_nr_BCprimerF = self.osearch(seqs_used=grepseqs_BCprimerF, seq_searched=read_rev_com[1][:21],
                                                   match=match)
                 if match_nr_BCprimerF:
@@ -216,7 +225,7 @@ class GREPoreSeq:
                                                       match=match)
                     if match_nr_BCprimerR:
                         match_nr_uniseq = self.osearch(seqs_used=grepseqs_uniseq,
-                                                       seq_searched=read_rev_com[1][151:-150],
+                                                       seq_searched=read_rev_com[1][left_range:-right_range],
                                                        match=match)
                         if match_nr_uniseq:
                             return "NR"
@@ -328,7 +337,7 @@ def main():
         g.mk_reference()
         g.disassemble()
         g.prepare_grepseq()
-        g.demultiplex(fastq_file=args.nanopore, match=1)
+        g.demultiplex(fastq_file=args.nanopore, match=2)
         g.write_fastq()
         g.visualization()
 
