@@ -14,6 +14,7 @@ logger.propagate = False
 
 
 def visualizing(reference, demultis, outpath, demulti_random200=None):
+
     """Generate .sorted.bam and .sorted.bam.bai files"""
     temoutfile = f'{os.path.splitext(reference)[0]}.mmi'
     mmifile = f'{os.path.join(outpath, os.path.split(temoutfile)[1])}'
